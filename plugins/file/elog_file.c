@@ -21,6 +21,7 @@ static size_t cur_buf_size = 0;
 
 /* initialize OK flag */
 static bool init_ok = false;
+static bool file_enable = false; 
 static struct rt_mutex file_log_lock; 
 
 ElogErrCode elog_file_init(void)
@@ -72,9 +73,26 @@ static void log_buf_unlock(void)
     rt_mutex_release(&file_log_lock); 
 }
 
-void elog_file_output(void)
+void elog_file_enable(bool enable)
+{
+    file_enable = enable; 
+}
+
+void elog_file_read(void)
 {
     extern void cat(const char *filename); 
+    
+    /* must be call this function after initialize OK */
+    ELOG_ASSERT(init_ok); 
+    
+    if(file_enable == false)
+    {
+        rt_kprintf("Easylogger file plugin is not open\n"); 
+        return; 
+    }
+    
+    /* lock file log buffer */
+    log_buf_lock();
     
     cat((const char *)ELOG_FILE_NAME); 
     
@@ -87,16 +105,25 @@ void elog_file_output(void)
     rt_device_write(console, 0, (char *)log_buf, cur_buf_size);
     console->open_flag = old_flag;
 #endif
+    
+    /* unlock file log buffer */
+    log_buf_unlock(); 
 }
 
 void elog_file_clean(void)
 {
-    int8_t result = 0;
+    int8_t result = 0; 
 
     /* must be call this function after initialize OK */
     ELOG_ASSERT(init_ok); 
     
-    /* lock flash log buffer */
+    if(file_enable == false)
+    {
+        rt_kprintf("Easylogger file plugin is not open.\n"); 
+        return; 
+    }
+    
+    /* lock file log buffer */
     log_buf_lock();
     
     /* clean all log which in flash */
@@ -107,7 +134,7 @@ void elog_file_clean(void)
     cur_buf_size = 0;
 #endif
 
-    /* unlock flash log buffer */
+    /* unlock file log buffer */
     log_buf_unlock();
 
     if(result == 0) 
@@ -124,7 +151,13 @@ void elog_file_clean(void)
 void elog_file_flush(void) 
 {
     /* must be call this function after initialize OK */
-    ELOG_ASSERT(init_ok);
+    ELOG_ASSERT(init_ok); 
+    
+    if(file_enable == false)
+    {
+        rt_kprintf("Easylogger file plugin is not open.\n"); 
+        return; 
+    }
     
     /* lock flash log buffer */
     log_buf_lock();
@@ -137,6 +170,8 @@ void elog_file_flush(void)
     
     /* unlock flash log buffer */
     log_buf_unlock();
+    
+    rt_kprintf("EasyLogger file log buffer as been written to the file.\n");
 }
 #endif
 
@@ -148,6 +183,12 @@ void elog_file_write(const char *log, size_t size)
     
     /* must be call this function after initialize OK */
     ELOG_ASSERT(init_ok); 
+    
+    /* 判断是否使能输出 */
+    if(file_enable == false)
+    {
+        return; 
+    }
     
     /* lock file log buffer */
     log_buf_lock();
@@ -191,9 +232,17 @@ static void elog_file(uint8_t argc, char **argv)
 {
     if(argc >= 2) 
     {
-        if(!strcmp(argv[1], "read")) 
+        if(!strcmp(argv[1], "on")) 
         {
-            elog_file_output(); 
+            elog_file_enable(true); 
+        } 
+        else if(!strcmp(argv[1], "off")) 
+        {
+            elog_file_enable(false); 
+        } 
+        else if(!strcmp(argv[1], "read")) 
+        {
+            elog_file_read(); 
         } 
         else if(!strcmp(argv[1], "clean")) 
         {
@@ -203,20 +252,19 @@ static void elog_file(uint8_t argc, char **argv)
         {
 #ifdef ELOG_FILE_USING_BUF_MODE
             elog_file_flush();
-            rt_kprintf("EasyLogger file log buffer as been written to the file.\n");
 #else
             rt_kprintf("EasyLogger file log buffer mode is not open.\n");
 #endif
         } 
         else 
         {
-            rt_kprintf("Please input elog_file {<read>, <clean>, <flush>}.\n");
+            rt_kprintf("Please input elog_file {<on/off>, <read>, <clean>, <flush>}.\n");
         }
     } 
     else 
     {
-        rt_kprintf("Please input elog_file {<read>, <clean>, <flush>}.\n");
+        rt_kprintf("Please input elog_file {<on/off>, <read>, <clean>, <flush>}.\n");
     }
 }
-MSH_CMD_EXPORT(elog_file, EasyLogger <read> <clean> <flush> flash log);
+MSH_CMD_EXPORT(elog_file, EasyLogger <on/off> <read> <clean> <flush> flash log);
 #endif /* defined(RT_USING_FINSH) && defined(FINSH_USING_MSH) */

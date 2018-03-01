@@ -31,6 +31,7 @@
 #include <rtthread.h>
 #include <time.h>
 #include <dfs_posix.h>
+#include "env_dfm.h" 
 
 static struct rt_mutex output_lock;
 

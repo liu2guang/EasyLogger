@@ -71,7 +71,7 @@ void elog_buf_output(const char *log, size_t size) {
             /* reset write index */
             buf_write_size = 0;
         } else {
-            memcpy(log_buf + buf_write_size, log + write_index, size);
+            memcpy(log_buf + buf_write_size, log + write_index, size); 
             buf_write_size += size;
             break;
         }

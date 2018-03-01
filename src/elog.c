@@ -303,10 +303,13 @@ void elog_set_filter_kw(const char *keyword) {
  * lock output
  */
 void elog_output_lock(void) {
-    if (elog.output_lock_enabled) {
+    if (elog.output_lock_enabled) 
+    {
         elog_port_output_lock();
         elog.output_is_locked_before_disable = true;
-    } else {
+    } 
+    else 
+    {
         elog.output_is_locked_before_enable = true;
     }
 }
@@ -365,7 +368,7 @@ void elog_raw(const char *format, ...) {
     elog_port_output(log_buf, log_len);
 #endif
     /* unlock output */
-    elog_port_output_unlock();
+    elog_port_output_unlock(); // ?
 
     va_end(args);
 }

@@ -10,7 +10,8 @@ extern "C" {
     
 /* elog_file.c */
 ElogErrCode elog_file_init(void); 
-void elog_file_output(void); 
+void elog_file_enable(bool enable); 
+void elog_file_read(void); 
 void elog_file_write(const char *log, size_t size); 
 void elog_file_clean(void); 
 void elog_file_flush(void); 
