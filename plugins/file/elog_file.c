@@ -94,17 +94,12 @@ void elog_file_read(void)
     /* lock file log buffer */
     log_buf_lock();
     
-    cat((const char *)ELOG_FILE_NAME); 
-    
     /* ´òÓ¡BUFÄÚÈÝ */
 #ifdef ELOG_FILE_USING_BUF_MODE 
-    rt_device_t console = rt_console_get_device(); 
-    rt_uint16_t old_flag = console->open_flag;
-
-    console->open_flag |= RT_DEVICE_FLAG_STREAM;
-    rt_device_write(console, 0, (char *)log_buf, cur_buf_size);
-    console->open_flag = old_flag;
+    elog_file_flush(); 
 #endif
+    
+    cat((const char *)ELOG_FILE_NAME); 
     
     /* unlock file log buffer */
     log_buf_unlock(); 
@@ -256,15 +251,19 @@ static void elog_file(uint8_t argc, char **argv)
             rt_kprintf("EasyLogger file log buffer mode is not open.\n");
 #endif
         } 
+        else if(!strcmp(argv[1], "state")) 
+        {
+            rt_kprintf("File log buff has %d bytes of content.\n", cur_buf_size);
+        } 
         else 
         {
-            rt_kprintf("Please input elog_file {<on/off>, <read>, <clean>, <flush>}.\n");
+            rt_kprintf("Please input elog_file {<on/off>, <read>, <clean>, <flush>, <state>}.\n");
         }
     } 
     else 
     {
-        rt_kprintf("Please input elog_file {<on/off>, <read>, <clean>, <flush>}.\n");
+        rt_kprintf("Please input elog_file {<on/off>, <read>, <clean>, <flush>, <state>}.\n");
     }
 }
-MSH_CMD_EXPORT(elog_file, EasyLogger <on/off> <read> <clean> <flush> flash log);
+MSH_CMD_EXPORT(elog_file, EasyLogger <on/off> <read> <clean> <flush> <state> flash log);
 #endif /* defined(RT_USING_FINSH) && defined(FINSH_USING_MSH) */
