@@ -30,6 +30,7 @@
 #define _ELOG_FLASH_CFG_H_
 
 #include <elog.h>
+
 /* EasyLogger flash log plugin's using buffer mode */
 #define ELOG_FLASH_USING_BUF_MODE
 /* EasyLogger flash log plugin's RAM buffer size */

@@ -87,7 +87,7 @@ ElogErrCode elog_flash_init(void) {
 void elog_flash_output(size_t index, size_t size) {
     /* 128 bytes buffer */
     uint32_t buf[32] = { 0 };
-    size_t log_total_size = ef_log_get_used_size();
+    size_t log_total_size = ef_log_get_used_size(); 
     size_t buf_size = sizeof(buf);
     size_t read_size = 0, read_overage_size = 0;
 
@@ -299,10 +299,13 @@ static void log_buf_lock(void) {
  * unlock flash log buffer
  */
 static void log_buf_unlock(void) {
-    if (log_buf_lock_enabled) {
+    if (log_buf_lock_enabled) 
+    {
         elog_flash_port_unlock();
         log_buf_is_locked_before_disable = false;
-    } else {
+    } 
+    else 
+    {
         log_buf_is_locked_before_enable = false;
     }
 }

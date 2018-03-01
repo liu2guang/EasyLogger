@@ -101,5 +101,9 @@
 #if defined(PKG_EASYLOGGER_ENABLE_PLUGIN_FLASH)
     #define ELOG_FLASH_ENABLE
 #endif
+/* enable file plugin */
+#if defined(PKG_EASYLOGGER_ENABLE_PLUGIN_FILE)
+    #define ELOG_FILE_ENABLE
+#endif
 
 #endif /* _ELOG_CFG_H_ */

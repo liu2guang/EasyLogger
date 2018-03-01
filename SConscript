@@ -8,10 +8,14 @@ src    += Glob('port/*.c')
 
 path    = [cwd + '/inc']
 
-if GetDepend(['PKG_ELOG_ENABLE_PLUGIN_FLASH']):
+if GetDepend(['PKG_EASYLOGGER_ENABLE_PLUGIN_FLASH']):
     src    += Glob('plugins/flash/*.c')
     path   += [cwd + '/plugins/flash']
 
-group = DefineGroup('EasyLogger', src, depend = ['PKG_USING_EASYLOGGER'], CPPPATH = path)
+if GetDepend(['PKG_EASYLOGGER_ENABLE_PLUGIN_FILE']):
+    src    += Glob('plugins/file/*.c')
+    path   += [cwd + '/plugins/file']
+
+group = DefineGroup('EasyLogger', src, depend = [''], CPPPATH = path)
 
 Return('group')

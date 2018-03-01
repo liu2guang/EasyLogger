@@ -30,6 +30,7 @@
 #include <rthw.h>
 #include <rtthread.h>
 #include <time.h>
+#include <dfs_posix.h>
 
 static struct rt_mutex output_lock;
 
@@ -56,47 +57,37 @@ ElogErrCode elog_port_init(void) {
         rt_thread_startup(async_thread);
     }
 #endif
-
+    
     return result;
-}
-
-/**
- * 输出日志到控制台或者 flash 中
- *
- * @param console 是否输出到控制台
- * @param flash 是否输出到 flash 中
- * @param log 日志缓冲区
- * @param size 日志大小
- */
-void output_log_to_console_or_flash(bool console, bool flash, const char *log, size_t size) {
-    if(console) {
-        rt_kprintf("%.*s", size, log);
-    }
-
-#if defined(ELOG_FLASH_ENABLE)
-#include <elog_flash.h>
-    if(flash) {
-        elog_flash_write(log, size);
-    }
-#endif
-
 }
 
 /**
  * output log port interface
  *
  * @param log output of log
- * @param size log size
+ * @param size log size5
  */
 void elog_port_output(const char *log, size_t size) {
     int8_t lvl = elog_find_lvl(log);
+    
     /* output to terminal */
-    output_log_to_console_or_flash(true, false, log, size);
+    rt_kprintf("%.*s", size, log); 
+    
     /* 只将断言、错误及警告日志保存至 Flash */
-    if (lvl == ELOG_LVL_ASSERT || lvl == ELOG_LVL_ERROR || lvl == ELOG_LVL_WARN) {
+    if (lvl == ELOG_LVL_ASSERT || lvl == ELOG_LVL_ERROR || lvl == ELOG_LVL_WARN) 
+    {
         /* output to flash */
-        output_log_to_console_or_flash(false, true, log, size);
+#if defined(ELOG_FLASH_ENABLE)
+#include <elog_flash.h>
+        elog_flash_write(log, size);
+#endif
     }
+    
+    /* file by liuguang */
+#if defined(ELOG_FILE_ENABLE)
+#include <elog_file.h>
+    elog_file_write(log, size); 
+#endif
 }
 
 #ifdef ELOG_ASYNC_OUTPUT_ENABLE
