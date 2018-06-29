@@ -251,10 +251,13 @@ static void elog_file(uint8_t argc, char **argv)
             rt_kprintf("EasyLogger file log buffer mode is not open.\n");
 #endif
         } 
+        
+#ifdef ELOG_FLASH_USING_BUF_MODE
         else if(!strcmp(argv[1], "state")) 
         {
             rt_kprintf("File log buff has %d bytes of content.\n", cur_buf_size);
         } 
+#endif
         else 
         {
             rt_kprintf("Please input elog_file {<on/off>, <read>, <clean>, <flush>, <state>}.\n");
